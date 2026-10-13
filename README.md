@@ -1,5 +1,54 @@
 # Welcome to your Expo app 👋
 
+# RestLog
+
+A simple offline-first sleep and health tracker built with
+React Native and Expo.
+
+## Features
+
+- Log bedtime and wake-up time
+- Automatic sleep duration calculation
+- Sleep quality rating
+- Sleep notes
+- Persistent offline storage
+- Sleep history
+- Delete sleep records
+- Weekly sleep trends
+- Average sleep score
+- Weekly insights
+
+## Tech Stack
+
+- React Native
+- Expo
+- Expo Router
+- AsyncStorage
+- React Native SVG
+- React Native Chart Kit
+
+## Getting Started
+
+### Install dependencies
+
+npm install
+
+### Start the application
+
+npx expo start
+
+## Data Storage
+
+Sleep records are stored locally using AsyncStorage,
+allowing data to persist after the application is restarted.
+
+## Screens
+
+1. Log Sleep
+2. History
+3. Trends & Insights
+
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
