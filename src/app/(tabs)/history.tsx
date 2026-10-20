@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Modal,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -51,6 +52,9 @@ export default function HistoryScreen() {
 
   const [deletingId, setDeletingId] =
     useState<string | null>(null);
+
+  const [entryPendingDeletion, setEntryPendingDeletion] =
+    useState<SleepEntry | null>(null);
 
   // Load entries whenever this screen
   // becomes active.
@@ -98,30 +102,25 @@ export default function HistoryScreen() {
     await loadEntries();
   };
 
-  // Confirm before deleting a record.
   const confirmDelete = (
     entry: SleepEntry
   ) => {
-    Alert.alert(
-      "Delete sleep entry?",
-      "This record will be permanently removed from your device.",
+    setEntryPendingDeletion(entry);
+  };
 
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+  const cancelDelete = () => {
+    setEntryPendingDeletion(null);
+  };
 
-        {
-          text: "Delete",
-          style: "destructive",
+  const confirmPendingDelete = () => {
+    if (!entryPendingDeletion) {
+      return;
+    }
 
-          onPress: () => {
-            void handleDelete(entry.id);
-          },
-        },
-      ]
-    );
+    const entryId = entryPendingDeletion.id;
+
+    setEntryPendingDeletion(null);
+    void handleDelete(entryId);
   };
 
   // Delete the entry from persistent storage.
@@ -441,6 +440,52 @@ export default function HistoryScreen() {
           />
         )}
       </View>
+
+      <Modal
+        visible={entryPendingDeletion !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={cancelDelete}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmationModal}>
+            <Text style={styles.confirmationTitle}>
+              Delete sleep entry?
+            </Text>
+
+            <Text style={styles.confirmationMessage}>
+              Are you sure you want to delete this sleep
+              history? This action cannot be undone.
+            </Text>
+
+            <View style={styles.confirmationActions}>
+              <Pressable
+                onPress={cancelDelete}
+                style={({ pressed }) => [
+                  styles.cancelButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.cancelButtonText}>
+                  Cancel
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={confirmPendingDelete}
+                style={({ pressed }) => [
+                  styles.confirmDeleteButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.confirmDeleteText}>
+                  Delete
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -751,6 +796,75 @@ const styles = StyleSheet.create({
 
   disabledButton: {
     opacity: 0.5,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    backgroundColor: "rgba(18, 16, 39, 0.45)",
+  },
+
+  confirmationModal: {
+    width: "100%",
+    maxWidth: 400,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    padding: 24,
+  },
+
+  confirmationTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
+  confirmationMessage: {
+    marginTop: 10,
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.textSecondary,
+  },
+
+  confirmationActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 24,
+  },
+
+  cancelButton: {
+    minWidth: 90,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 16,
+  },
+
+  cancelButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textSecondary,
+  },
+
+  confirmDeleteButton: {
+    minWidth: 90,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    backgroundColor: colors.danger,
+    paddingHorizontal: 16,
+  },
+
+  confirmDeleteText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
 
   centerContent: {

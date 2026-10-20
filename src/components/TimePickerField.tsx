@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+  Platform,
   View,
   Text,
   Pressable,
@@ -43,6 +44,28 @@ export default function TimePickerField({
     }
   };
 
+  const handleWebChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const [hours, minutes] =
+      event.target.value.split(":").map(Number);
+
+    if (
+      Number.isInteger(hours) &&
+      Number.isInteger(minutes)
+    ) {
+      const nextDate = new Date(value);
+
+      nextDate.setHours(hours, minutes, 0, 0);
+      onChange(nextDate);
+    }
+  };
+
+  const webTimeValue = [
+    value.getHours().toString().padStart(2, "0"),
+    value.getMinutes().toString().padStart(2, "0"),
+  ].join(":");
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
@@ -74,7 +97,20 @@ export default function TimePickerField({
         </Text>
       </Pressable>
 
-      {showPicker && (
+      {showPicker && Platform.OS === "web" && (
+        <View style={styles.webPickerContainer}>
+          {React.createElement("input", {
+            type: "time",
+            value: webTimeValue,
+            onChange: handleWebChange,
+            "aria-label": `Select ${label.toLowerCase()}`,
+            autoFocus: true,
+            style: styles.webInput,
+          })}
+        </View>
+      )}
+
+      {showPicker && Platform.OS !== "web" && (
         <DateTimePicker
           value={value}
           mode="time"
@@ -127,5 +163,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: colors.primary,
+  },
+
+  webPickerContainer: {
+    marginTop: 8,
+  },
+
+  webInput: {
+    width: "100%",
+    minHeight: 44,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    borderRadius: 10,
+    backgroundColor: colors.surface,
+    color: colors.text,
+    fontSize: 16,
+    paddingHorizontal: 12,
   },
 });
